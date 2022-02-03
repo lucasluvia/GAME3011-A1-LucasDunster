@@ -19,6 +19,7 @@ public class ButtonBehaviour : MonoBehaviour
     private float pointValue;
 
     public bool isRevealed;
+    public bool isExtracting = false;
 
     // Start is called before the first frame update
     void Start()
@@ -26,6 +27,7 @@ public class ButtonBehaviour : MonoBehaviour
         SetMaterialValueVariables();
         image = GetComponent<Image>();
         image.color = HiddenValueColor;
+        gameObject.GetComponent<Button>().onClick.AddListener(wasClicked);
     }
 
     // Update is called once per frame
@@ -58,6 +60,50 @@ public class ButtonBehaviour : MonoBehaviour
                 pointValue = 0;
                 break;
         }
+    }
+
+    void ExtractMaterial()
+    {
+        materialValue = MaterialValues.EMPTY;
+        //give pointValue;
+        //call DecrementMaterialLevel of surrounding 8
+        SetMaterialValueVariables();
+    }
+
+    public void wasClicked()
+    {
+        Debug.Log("Clicked");
+
+        if(isExtracting)
+        {
+            ExtractMaterial();
+        }
+        else
+        {
+            isRevealed = true;
+        }
+
+    }
+
+    void DecrementMaterialLevel()
+    {
+
+        switch (materialValue)
+        {
+            case MaterialValues.FULL:
+                materialValue = MaterialValues.HALF;
+                //give pointValue; ??
+                break;
+            case MaterialValues.HALF:
+                materialValue = MaterialValues.QUARTER;
+                //give pointValue; ??
+                break;
+            case MaterialValues.QUARTER:
+                materialValue = MaterialValues.EMPTY;
+                //give pointValue; ??
+                break;
+        }
+        SetMaterialValueVariables();
     }
 
 }
