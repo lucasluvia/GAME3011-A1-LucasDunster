@@ -6,22 +6,27 @@ using TMPro;
 
 public class GameController : MonoBehaviour
 {
+    [SerializeField] private TextMeshProUGUI buttonText;
+    [SerializeField] private TextMeshProUGUI extractsText;
+    [SerializeField] private TextMeshProUGUI scansText;
+    [SerializeField] private TextMeshProUGUI pointsText;
+
     public bool ExtractMode = false; 
-    public float arraySize = 32;
     public int remainingScans = 6;
     public int remainingExtracts = 3;
-    [SerializeField] private GameObject[,] buttonArray = new GameObject[32, 32];
-    [SerializeField] private TextMeshProUGUI buttonText;
 
-    // Vector? GameObject[,] thing idk? comma is array thing? for 2d
+    private int pointTracker = 0;
 
-    // for loop where i is like, first value? and also row?
-    //gets things with row tag? name? 
+    private float arraySize = 32;
+    private GameObject[,] buttonArray = new GameObject[32, 32];
 
     void Start()
     {
         InstantiateArray();
         SetButtonText();
+        extractsText.text = remainingExtracts.ToString();
+        scansText.text = remainingScans.ToString();
+        pointsText.text = pointTracker.ToString();
     }
 
     public void SwapModes()
@@ -33,9 +38,27 @@ public class GameController : MonoBehaviour
     void SetButtonText()
     {
         if (ExtractMode)
-            buttonText.text = "Scan";
+            buttonText.text = "Extract Mode";
         else
-            buttonText.text = "Extract";
+            buttonText.text = "Scan Mode";
+    }
+
+    public void DecrementUses()
+    {
+        if(ExtractMode)
+        {
+            extractsText.text = (--remainingExtracts).ToString();
+        }
+        else
+        {
+            scansText.text = (--remainingScans).ToString();
+        }
+    }
+
+    public void AddToPointTracker(int pointsToAdd)
+    {
+        pointTracker += pointsToAdd;
+        pointsText.text = pointTracker.ToString();
     }
 
     void InstantiateArray()

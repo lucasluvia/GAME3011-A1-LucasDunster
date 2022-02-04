@@ -17,7 +17,7 @@ public class ButtonBehaviour : MonoBehaviour
     private Image image;
 
     private Color MaterialValueColour;
-    private float pointValue;
+    private int pointValue;
 
     public bool isRevealed;
 
@@ -65,10 +65,8 @@ public class ButtonBehaviour : MonoBehaviour
 
     void ExtractSelfMaterial()
     {
-        Debug.Log("Extracted at " + spotInArray.x + ", " + spotInArray.y);
+        gameControllerRef.AddToPointTracker(pointValue);
         materialValue = MaterialValues.EMPTY;
-        //give pointValue;
-        //call DecrementMaterialLevel of surrounding 8
         SetMaterialValueVariables();
     }
 
@@ -136,7 +134,7 @@ public class ButtonBehaviour : MonoBehaviour
         TriggerDecrement(new Vector2( 0, -2));
         TriggerDecrement(new Vector2( 0, +2));
 
-        gameControllerRef.remainingExtracts--;
+        gameControllerRef.DecrementUses();
         Debug.Log("Remaining Extracts = " + gameControllerRef.remainingExtracts);
     }
 
@@ -153,7 +151,7 @@ public class ButtonBehaviour : MonoBehaviour
         TriggerReveal(new Vector2( 0, -1));
         TriggerReveal(new Vector2( 0, +1));
 
-        gameControllerRef.remainingScans--;
+        gameControllerRef.DecrementUses();
         Debug.Log("Remaining Scans = " + gameControllerRef.remainingScans);
     }
 
