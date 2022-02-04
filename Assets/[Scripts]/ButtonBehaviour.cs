@@ -5,8 +5,9 @@ using UnityEngine.UI;
 
 public class ButtonBehaviour : MonoBehaviour
 {
+    public ButtonArray buttonArrayRef;
     public MaterialValues materialValue;
-
+    public Vector2 spotInArray = new Vector2(0, 0);
     private Color HiddenValueColor = Color.white;
     private Color FullValueColour = Color.blue;
     private Color HalfValueColour = new Color(0f, 0.4f, 1f, 1f);
@@ -24,6 +25,7 @@ public class ButtonBehaviour : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        buttonArrayRef = transform.parent.parent.GetComponent<ButtonArray>();
         SetMaterialValueVariables();
         image = GetComponent<Image>();
         image.color = HiddenValueColor;
@@ -80,7 +82,27 @@ public class ButtonBehaviour : MonoBehaviour
         }
         else
         {
-            isRevealed = true;
+            Reveal();
+            if(spotInArray.x-1 > 0)
+            {
+                if(spotInArray.y - 1 > 0)
+                    buttonArrayRef.GetButtonInArray(spotInArray, new Vector2(-1, -1)).GetComponent<ButtonBehaviour>().Reveal();
+                buttonArrayRef.GetButtonInArray(spotInArray, new Vector2(-1, 0)).GetComponent<ButtonBehaviour>().Reveal();
+                if (spotInArray.y + 1 < 32)
+                    buttonArrayRef.GetButtonInArray(spotInArray, new Vector2(-1, +1)).GetComponent<ButtonBehaviour>().Reveal();
+            }
+            if(spotInArray.x+1 <32)
+            {
+                if (spotInArray.y - 1 > 0)
+                    buttonArrayRef.GetButtonInArray(spotInArray, new Vector2(+1, -1)).GetComponent<ButtonBehaviour>().Reveal();
+                buttonArrayRef.GetButtonInArray(spotInArray, new Vector2(+1, 0)).GetComponent<ButtonBehaviour>().Reveal();
+                if (spotInArray.y + 1 < 32)
+                    buttonArrayRef.GetButtonInArray(spotInArray, new Vector2(+1, +1)).GetComponent<ButtonBehaviour>().Reveal();
+            }
+            if (spotInArray.y - 1 > 0)
+                buttonArrayRef.GetButtonInArray(spotInArray, new Vector2(0, -1)).GetComponent<ButtonBehaviour>().Reveal();
+            if (spotInArray.y + 1 < 32)
+                buttonArrayRef.GetButtonInArray(spotInArray, new Vector2(0, +1)).GetComponent<ButtonBehaviour>().Reveal();
         }
 
     }
@@ -104,6 +126,11 @@ public class ButtonBehaviour : MonoBehaviour
                 break;
         }
         SetMaterialValueVariables();
+    }
+
+    void Reveal()
+    {
+        isRevealed = true;
     }
 
 }

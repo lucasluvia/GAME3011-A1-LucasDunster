@@ -7,7 +7,7 @@ public class ButtonArray : MonoBehaviour
 {
 
     public float arraySize = 32;
-    [SerializeField] private GameObject[,] nodes = new GameObject[32, 32];
+    [SerializeField] private GameObject[,] buttonArray = new GameObject[32, 32];
 
     // Vector? GameObject[,] thing idk? comma is array thing? for 2d
 
@@ -28,11 +28,18 @@ public class ButtonArray : MonoBehaviour
             int j = 0;
             foreach(Transform column in currentRow)
             {
-                nodes[i, j] = column.gameObject;
+                buttonArray[i, j] = column.gameObject;
+                column.gameObject.GetComponent<ButtonBehaviour>().spotInArray = new Vector2(i, j);
                 j++;
             }
         }
     }
+
+    public GameObject GetButtonInArray(Vector2 requestersPosition, Vector2 additivePosition)
+    {
+        return buttonArray[(int)(requestersPosition.x + additivePosition.x), (int)(requestersPosition.y + additivePosition.y)];
+    }
+
 
     //then uses j and foreach's all those?
     //and puts those at i,j? but how do you put it at the j?
