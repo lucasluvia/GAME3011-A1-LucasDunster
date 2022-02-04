@@ -2,12 +2,16 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using TMPro;
 
-public class ButtonArray : MonoBehaviour
+public class GameController : MonoBehaviour
 {
-
+    public bool ExtractMode = false; 
     public float arraySize = 32;
+    public int remainingScans = 6;
+    public int remainingExtracts = 3;
     [SerializeField] private GameObject[,] buttonArray = new GameObject[32, 32];
+    [SerializeField] private TextMeshProUGUI buttonText;
 
     // Vector? GameObject[,] thing idk? comma is array thing? for 2d
 
@@ -17,6 +21,21 @@ public class ButtonArray : MonoBehaviour
     void Start()
     {
         InstantiateArray();
+        SetButtonText();
+    }
+
+    public void SwapModes()
+    {
+        ExtractMode = !ExtractMode;
+        SetButtonText();
+    }
+
+    void SetButtonText()
+    {
+        if (ExtractMode)
+            buttonText.text = "Scan";
+        else
+            buttonText.text = "Extract";
     }
 
     void InstantiateArray()

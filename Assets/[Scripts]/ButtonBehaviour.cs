@@ -5,7 +5,7 @@ using UnityEngine.UI;
 
 public class ButtonBehaviour : MonoBehaviour
 {
-    public ButtonArray buttonArrayRef;
+    public GameController gameControllerRef;
     public MaterialValues materialValue;
     public Vector2 spotInArray = new Vector2(0, 0);
     private Color HiddenValueColor = Color.white;
@@ -20,12 +20,11 @@ public class ButtonBehaviour : MonoBehaviour
     private float pointValue;
 
     public bool isRevealed;
-    public bool isExtracting = false;
 
     // Start is called before the first frame update
     void Start()
     {
-        buttonArrayRef = transform.parent.parent.GetComponent<ButtonArray>();
+        gameControllerRef = transform.parent.parent.GetComponent<GameController>();
         SetMaterialValueVariables();
         image = GetComponent<Image>();
         image.color = HiddenValueColor;
@@ -64,8 +63,9 @@ public class ButtonBehaviour : MonoBehaviour
         }
     }
 
-    void ExtractMaterial()
+    void ExtractSelfMaterial()
     {
+        Debug.Log("Extracted at " + spotInArray.x + ", " + spotInArray.y);
         materialValue = MaterialValues.EMPTY;
         //give pointValue;
         //call DecrementMaterialLevel of surrounding 8
@@ -76,33 +76,15 @@ public class ButtonBehaviour : MonoBehaviour
     {
         Debug.Log("Clicked");
 
-        if(isExtracting)
+        if(gameControllerRef.ExtractMode)
         {
-            ExtractMaterial();
+            if (gameControllerRef.remainingExtracts > 0)
+                CallExtract();
         }
         else
         {
-            Reveal();
-            if(spotInArray.x-1 > 0)
-            {
-                if(spotInArray.y - 1 > 0)
-                    buttonArrayRef.GetButtonInArray(spotInArray, new Vector2(-1, -1)).GetComponent<ButtonBehaviour>().Reveal();
-                buttonArrayRef.GetButtonInArray(spotInArray, new Vector2(-1, 0)).GetComponent<ButtonBehaviour>().Reveal();
-                if (spotInArray.y + 1 < 32)
-                    buttonArrayRef.GetButtonInArray(spotInArray, new Vector2(-1, +1)).GetComponent<ButtonBehaviour>().Reveal();
-            }
-            if(spotInArray.x+1 <32)
-            {
-                if (spotInArray.y - 1 > 0)
-                    buttonArrayRef.GetButtonInArray(spotInArray, new Vector2(+1, -1)).GetComponent<ButtonBehaviour>().Reveal();
-                buttonArrayRef.GetButtonInArray(spotInArray, new Vector2(+1, 0)).GetComponent<ButtonBehaviour>().Reveal();
-                if (spotInArray.y + 1 < 32)
-                    buttonArrayRef.GetButtonInArray(spotInArray, new Vector2(+1, +1)).GetComponent<ButtonBehaviour>().Reveal();
-            }
-            if (spotInArray.y - 1 > 0)
-                buttonArrayRef.GetButtonInArray(spotInArray, new Vector2(0, -1)).GetComponent<ButtonBehaviour>().Reveal();
-            if (spotInArray.y + 1 < 32)
-                buttonArrayRef.GetButtonInArray(spotInArray, new Vector2(0, +1)).GetComponent<ButtonBehaviour>().Reveal();
+            if (gameControllerRef.remainingScans > 0)
+                CallReveal();
         }
 
     }
@@ -114,21 +96,94 @@ public class ButtonBehaviour : MonoBehaviour
         {
             case MaterialValues.FULL:
                 materialValue = MaterialValues.HALF;
-                //give pointValue; ??
                 break;
             case MaterialValues.HALF:
                 materialValue = MaterialValues.QUARTER;
-                //give pointValue; ??
                 break;
             case MaterialValues.QUARTER:
                 materialValue = MaterialValues.EMPTY;
-                //give pointValue; ??
                 break;
         }
         SetMaterialValueVariables();
     }
 
-    void Reveal()
+    void CallExtract()
+    {
+        ExtractSelfMaterial();
+
+        TriggerDecrement(new Vector2(-1, -1));
+        TriggerDecrement(new Vector2(-1,  0));
+        TriggerDecrement(new Vector2(-1, +1));
+        TriggerDecrement(new Vector2(-1, -2));
+        TriggerDecrement(new Vector2(-1, +2));
+        TriggerDecrement(new Vector2(+1, -1));
+        TriggerDecrement(new Vector2(+1,  0));
+        TriggerDecrement(new Vector2(+1, +2));
+        TriggerDecrement(new Vector2(+1, -2));
+        TriggerDecrement(new Vector2(+1, +1));
+        TriggerDecrement(new Vector2(-2, -1));
+        TriggerDecrement(new Vector2(-2,  0));
+        TriggerDecrement(new Vector2(-2, +1));
+        TriggerDecrement(new Vector2(-2, -2));
+        TriggerDecrement(new Vector2(-2, +2));
+        TriggerDecrement(new Vector2(+2, -1));
+        TriggerDecrement(new Vector2(+2,  0));
+        TriggerDecrement(new Vector2(+2, +2));
+        TriggerDecrement(new Vector2(+2, -2));
+        TriggerDecrement(new Vector2(+2, +1));
+        TriggerDecrement(new Vector2( 0, -1));
+        TriggerDecrement(new Vector2( 0, +1));
+        TriggerDecrement(new Vector2( 0, -2));
+        TriggerDecrement(new Vector2( 0, +2));
+
+        gameControllerRef.remainingExtracts--;
+        Debug.Log("Remaining Extracts = " + gameControllerRef.remainingExtracts);
+    }
+
+    void CallReveal()
+    {
+        RevealSelf();
+
+        TriggerReveal(new Vector2(-1, -1));
+        TriggerReveal(new Vector2(-1,  0));
+        TriggerReveal(new Vector2(-1, +1));
+        TriggerReveal(new Vector2(+1, -1));
+        TriggerReveal(new Vector2(+1,  0));
+        TriggerReveal(new Vector2(+1, +1));
+        TriggerReveal(new Vector2( 0, -1));
+        TriggerReveal(new Vector2( 0, +1));
+
+        gameControllerRef.remainingScans--;
+        Debug.Log("Remaining Scans = " + gameControllerRef.remainingScans);
+    }
+
+    void TriggerReveal(Vector2 desiredOffset)
+    {
+        var offsetSpot = spotInArray + desiredOffset;
+        if (offsetSpot.x >= 0 && offsetSpot.x < 32)
+        {
+            if(offsetSpot.y >= 0 && offsetSpot.y < 32)
+            {
+                gameControllerRef.GetButtonInArray(spotInArray,desiredOffset).GetComponent<ButtonBehaviour>().RevealSelf();
+            }
+        }
+    }
+
+    void TriggerDecrement(Vector2 desiredOffset)
+    {
+        var offsetSpot = spotInArray + desiredOffset;
+        if (offsetSpot.x >= 0 && offsetSpot.x < 32)
+        {
+            if(offsetSpot.y >= 0 && offsetSpot.y < 32)
+            {
+                gameControllerRef.GetButtonInArray(spotInArray,desiredOffset).GetComponent<ButtonBehaviour>().DecrementMaterialLevel();
+            }
+        }
+    }
+
+
+
+    void RevealSelf()
     {
         isRevealed = true;
     }
