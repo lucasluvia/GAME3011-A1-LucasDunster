@@ -40,6 +40,12 @@ public class ButtonBehaviour : MonoBehaviour
         }
     }
 
+    public void SetMaterialValue(MaterialValues newValue)
+    {
+        materialValue = newValue;
+        SetMaterialValueVariables();
+    }
+
     void SetMaterialValueVariables()
     {
         switch(materialValue)
@@ -72,17 +78,19 @@ public class ButtonBehaviour : MonoBehaviour
 
     public void wasClicked()
     {
-        Debug.Log("Clicked");
 
-        if(gameControllerRef.ExtractMode)
+        if(gameControllerRef.remainingExtracts >0)
         {
-            if (gameControllerRef.remainingExtracts > 0)
-                CallExtract();
-        }
-        else
-        {
-            if (gameControllerRef.remainingScans > 0)
-                CallReveal();
+            if (gameControllerRef.ExtractMode)
+            {
+                if (gameControllerRef.remainingExtracts > 0)
+                    CallExtract();
+            }
+            else
+            {
+                if (gameControllerRef.remainingScans > 0)
+                    CallReveal();
+            }
         }
 
     }
@@ -93,16 +101,15 @@ public class ButtonBehaviour : MonoBehaviour
         switch (materialValue)
         {
             case MaterialValues.FULL:
-                materialValue = MaterialValues.HALF;
+                SetMaterialValue(MaterialValues.HALF);
                 break;
             case MaterialValues.HALF:
-                materialValue = MaterialValues.QUARTER;
+                SetMaterialValue(MaterialValues.QUARTER);
                 break;
             case MaterialValues.QUARTER:
-                materialValue = MaterialValues.EMPTY;
+                SetMaterialValue(MaterialValues.EMPTY);
                 break;
         }
-        SetMaterialValueVariables();
     }
 
     void CallExtract()
@@ -135,7 +142,6 @@ public class ButtonBehaviour : MonoBehaviour
         TriggerDecrement(new Vector2( 0, +2));
 
         gameControllerRef.DecrementUses();
-        Debug.Log("Remaining Extracts = " + gameControllerRef.remainingExtracts);
     }
 
     void CallReveal()
@@ -152,7 +158,6 @@ public class ButtonBehaviour : MonoBehaviour
         TriggerReveal(new Vector2( 0, +1));
 
         gameControllerRef.DecrementUses();
-        Debug.Log("Remaining Scans = " + gameControllerRef.remainingScans);
     }
 
     void TriggerReveal(Vector2 desiredOffset)

@@ -11,7 +11,7 @@ public class GameController : MonoBehaviour
     [SerializeField] private TextMeshProUGUI scansText;
     [SerializeField] private TextMeshProUGUI pointsText;
 
-    public bool ExtractMode = false; 
+    public bool ExtractMode = true; 
     public int remainingScans = 6;
     public int remainingExtracts = 3;
 
@@ -20,9 +20,12 @@ public class GameController : MonoBehaviour
     private float arraySize = 32;
     private GameObject[,] buttonArray = new GameObject[32, 32];
 
+    public bool debugCanRevealAll = false; 
+
     void Start()
     {
         InstantiateArray();
+        PlaceResources();
         SetButtonText();
         extractsText.text = remainingExtracts.ToString();
         scansText.text = remainingScans.ToString();
@@ -66,7 +69,6 @@ public class GameController : MonoBehaviour
         for (int i = 0; i < arraySize; i++)
         {
             var currentRow = transform.Find("Row" + (i + 1));
-            Debug.Log("Row" + (i + 1));
             int j = 0;
             foreach(Transform column in currentRow)
             {
@@ -82,16 +84,74 @@ public class GameController : MonoBehaviour
         return buttonArray[(int)(requestersPosition.x + additivePosition.x), (int)(requestersPosition.y + additivePosition.y)];
     }
 
+    void PlaceResources()
+    {
+        for (int i = 0; i < 8; i++)
+        {
+            int iValue = Random.Range(0, 31);
+            int jValue = Random.Range(0, 31);
+            Vector2 centreButton = new Vector2(iValue, jValue);
 
-    //then uses j and foreach's all those?
-    //and puts those at i,j? but how do you put it at the j?
-    //dont you just make the j the number?
-    //isnt the array like [4,24] not [4,gameObject24]?
-    //then you like, have the array
+            buttonArray[iValue, jValue].gameObject.GetComponent<ButtonBehaviour>().SetMaterialValue(MaterialValues.FULL);
+            
+            //first ring
+            SetValueIfValid(centreButton,new Vector2(-1, -1), MaterialValues.HALF);
+            SetValueIfValid(centreButton,new Vector2(-1,  0), MaterialValues.HALF);
+            SetValueIfValid(centreButton,new Vector2(-1, +1), MaterialValues.HALF);
+            SetValueIfValid(centreButton,new Vector2(+1, -1), MaterialValues.HALF);
+            SetValueIfValid(centreButton,new Vector2(+1,  0), MaterialValues.HALF);
+            SetValueIfValid(centreButton,new Vector2(+1, +1), MaterialValues.HALF);
+            SetValueIfValid(centreButton,new Vector2( 0, -1), MaterialValues.HALF);
+            SetValueIfValid(centreButton,new Vector2( 0, +1), MaterialValues.HALF);
+                            
+            //second ring   
+            SetValueIfValid(centreButton,new Vector2(-2, +1), MaterialValues.QUARTER);
+            SetValueIfValid(centreButton,new Vector2(-2, -2), MaterialValues.QUARTER);
+            SetValueIfValid(centreButton,new Vector2(-2, +2), MaterialValues.QUARTER);
+            SetValueIfValid(centreButton,new Vector2(+2, -1), MaterialValues.QUARTER);
+            SetValueIfValid(centreButton,new Vector2(+2,  0), MaterialValues.QUARTER);
+            SetValueIfValid(centreButton,new Vector2(+2, +2), MaterialValues.QUARTER);
+            SetValueIfValid(centreButton,new Vector2(+2, -2), MaterialValues.QUARTER);
+            SetValueIfValid(centreButton,new Vector2(+2, +1), MaterialValues.QUARTER);
+            SetValueIfValid(centreButton,new Vector2(-2,  0), MaterialValues.QUARTER);
+            SetValueIfValid(centreButton,new Vector2( 0, -2), MaterialValues.QUARTER);
+            SetValueIfValid(centreButton,new Vector2( 0, +2), MaterialValues.QUARTER);
+            SetValueIfValid(centreButton,new Vector2(-1, -2), MaterialValues.QUARTER);
+            SetValueIfValid(centreButton,new Vector2(-1, +2), MaterialValues.QUARTER);
+            SetValueIfValid(centreButton,new Vector2(+1, +2), MaterialValues.QUARTER);
+            SetValueIfValid(centreButton,new Vector2(+1, -2), MaterialValues.QUARTER);
+            SetValueIfValid(centreButton,new Vector2(-2, -1), MaterialValues.QUARTER);
+        }
+    }
 
+    private void SetValueIfValid(Vector2 originButton, Vector2 desiredOffset, MaterialValues valueToSet)
+    {
+        var offsetSpot = originButton + desiredOffset;
+        if (offsetSpot.x >= 0 && offsetSpot.x < 32)
+        {
+            if (offsetSpot.y >= 0 && offsetSpot.y < 32)
+            {
+                if(valueToSet < GetButtonInArray(originButton, desiredOffset).gameObject.GetComponent<ButtonBehaviour>().materialValue)
+                    GetButtonInArray(originButton,desiredOffset).gameObject.GetComponent<ButtonBehaviour>().SetMaterialValue(valueToSet);
+            }
+        }
+    }
 
-    // from there its easy, to get the one above you find what is at [-1,0] of your current spot, etc
-    // and return that value to use in other functions
+    void Update()
+    {
+        if (Input.GetKeyDown(KeyCode.V) && debugCanRevealAll)
+        {
+            DebugSetAllButtonsRevealed();
+        }
+    }
 
+    private void DebugSetAllButtonsRevealed()
+    {
+        foreach (GameObject button in buttonArray)
+        {
+            button.GetComponent<ButtonBehaviour>().isRevealed = true;
+        }
+        debugCanRevealAll = false;
+    }
 
 }
